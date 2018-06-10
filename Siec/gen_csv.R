@@ -1,3 +1,6 @@
+source('ewolucja.R')
+source('tworz_siec.R')
+
 symulacja<- function(N=100,
                      gamma=0.5,
                      beta=0.5,
@@ -24,12 +27,15 @@ symulacja<- function(N=100,
 }
 
 grid_wart<-read.csv('sym_wyniki/wartosci.csv')
-for (i in which(grid_wart$czy_zrobione==0)){
+
+ix=which(grid_wart$czy_zrobione==0)
+for (i in intersect(ix,which(grid_wart$N==1000))){
   grid_wart%>%slice(i)%>%as.vector()->param
   a<-symulacja(N=param$N, gamma=param$gamma, beta=param$beta,
                proc_chorych = param$proc_chorych, 
                l_krokow = param$l_krokow, siec_typ = param$siec_typ)
-  write_csv(a, paste0("sym", paste0(param,  collapse = "-" ), ".csv"))
+  write.csv(a, paste0("sym_wyniki/sym", paste0(param[1:6],  collapse = "-" ), ".csv"))
   grid_wart$czy_zrobione[i]=1
   print(i)
 }
+write.csv(grid_wart, "sym_wyniki/wartosci.csv")

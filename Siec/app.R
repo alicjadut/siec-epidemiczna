@@ -72,8 +72,8 @@ server <- function(input, output) {
      else if(input$czy_N & !input$czy_rodzaj)
      {g=g+geom_point(aes(x=wsp,y=procent_chorych,colour=log10(N)))+
        labs(colour="Liczba węzłów")+
-       scale_color_continuous(limits=c(2,6),breaks=2:6,
-                              labels=fancy_scientific(2:6))}
+       scale_color_continuous(limits=c(2,5),breaks=2:5,
+                              labels=fancy_scientific(2:5))}
      else if(!input$czy_N & input$czy_rodzaj)
      {g=g+geom_point(aes(x=wsp,y=procent_chorych,colour=siec_typ))+
        labs(colour="Typ sieci")}
