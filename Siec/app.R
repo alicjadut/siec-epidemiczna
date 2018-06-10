@@ -15,7 +15,6 @@ ui <- fluidPage(
              selectInput("siec_typ", label = "Typ sieci", 
                          choices = list(
                            "Barabasi-Albert" = 'ba',
-                           "Watts-Strogatz" = 'ws',
                            "Pełny graf" = 'fg',
                            "Kwadratowa" = 'sq'), 
                          selected = 'ba'),
@@ -32,7 +31,7 @@ ui <- fluidPage(
                          label="Odsetek chorych na początku",
                          min = 0, max = 1,
                          value = 0.5, step = 0.01),
-             numericInput("l_krokow", label = "Liczba kroków", value = 100),
+             numericInput("l_krokow", label = "Liczba kroków", value = 50),
              actionButton("start", label = "Rozpocznij symulację")
            )
     ),
@@ -92,8 +91,10 @@ server <- function(input, output) {
    symuluj<-eventReactive(input$start,{
      siec<-tworz_siec(N=input$N,proc_chorych=input$proc_chorych,typ=input$siec_typ)
      
-     k_sr=mean(degree(siec,mode='all'))#sredni stopień węzła
-     lambda_kr=1/k_sr
+     deg<-degree(siec,mode='all')
+     k_sr=mean(deg)#sredni stopień węzła
+     
+     lambda_kr=k_sr/mean(deg^2)
      lambda=input$beta/input$gamma
       
      #ramka z prawdopodobieństwem zachorowania od czasu
@@ -116,11 +117,18 @@ server <- function(input, output) {
      ggplot(sym)+geom_point(aes(x=krok,y=proc_chorych))+
        lims(y=c(0,1))+
        labs(y='P(I,t)',x='t',
-            title=bquote('<k>='*.(round(k_sr))
-                         ~lambda[KR]*'='*.(round(lambda_kr,2))
-                         ~lambda*'='*.(round(lambda,2))))+
-       geom_hline(yintercept = 1-lambda_kr/lambda)
+            title=bquote('<k> = '*.(round(k_sr))
+                         *'     '*lambda[KR]*' = <k>'/'<'*k^2*'>'*' = '*.(round(lambda_kr,2))
+                         *'     '*lambda*' = '*beta/gamma*' = '*.(round(lambda,2))
+                         ))+
+       geom_hline(yintercept = 1-lambda_kr/lambda,lty=2,colour='gray40')+
+       annotate('text',
+                label='1-lambda/lambda[KR]',
+                x=input$l_krokow*0.9,
+                y=0.98-lambda_kr/lambda,
+                parse=TRUE)
    })
+   
    output$symulacja <- renderPlot({
      symuluj()
    })
