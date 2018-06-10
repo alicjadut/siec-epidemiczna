@@ -83,12 +83,13 @@ server <- function(input, output) {
     
      g=g+stat_function(fun=Vectorize(p_sick))+
        lims(y=c(0,1))
-     g=g+labs(title='Diagram fazowy',
+     g=g+labs(main='Diagram fazowy',
               x=expression(lambda/lambda["kr"]),
               y=expression("P(I,"*infinity*")"))
      g
    })
-   output$symulacja <- renderPlot({
+   
+   symuluj<-eventReactive(input$start,{
      siec<-tworz_siec(N=input$N,proc_chorych=input$proc_chorych,typ=input$siec_typ)
      
      k_sr=mean(degree(siec,mode='all'))#sredni stopień węzła
@@ -106,6 +107,7 @@ server <- function(input, output) {
        wyniki<-c(krok, length(V(siec)[czy_chory==1])/vcount(siec))
        sym<-rbind(sym, wyniki)
      }
+     
      #tworzenie wykresu P(I,t)
      ggplot(sym)+geom_point(aes(x=krok,y=proc_chorych))+
        lims(y=c(0,1))+
@@ -114,6 +116,9 @@ server <- function(input, output) {
                          ~lambda[KR]*'='*.(round(lambda_kr,2))
                          ~lambda*'='*.(round(lambda,2))))+
        geom_hline(yintercept = 1-lambda_kr/lambda)
+   })
+   output$symulacja <- renderPlot({
+     symuluj()
    })
 }
 
