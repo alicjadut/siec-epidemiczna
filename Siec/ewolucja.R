@@ -1,11 +1,10 @@
 ewolucja<-function(siec,beta=0.5,gamma=0.5){
   #weź listę zarażonych
   #węź ich sąsiadów
+  
   lista_chorych<- V(siec)[czy_chory==1]
-  lista_sas<-c()
-  for (i in lista_chorych){
-  lista_sas<-c(lista_sas, neighbors(siec, i))
-  }
+  
+  lista_sas=unlist(adjacent_vertices(siec,lista_chorych))
   
   #dla każdego zaraź z P beta
   wek_zarazania<-sample(c(0,1), size=length(lista_sas), prob=c(1-beta, beta), replace=T)
