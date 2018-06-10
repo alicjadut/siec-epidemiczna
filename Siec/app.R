@@ -62,7 +62,7 @@ server <- function(input, output) {
        parse(text=l)
      }
      
-     g=ggplot(read.csv('artdata.csv'))
+     g=ggplot(read.csv('diag_faz.csv'))
      
      if(input$czy_N & input$czy_rodzaj)
      {g=g+geom_point(aes(x=wsp,y=procent_chorych,colour=log10(N),shape=siec_typ))+
@@ -114,7 +114,7 @@ server <- function(input, output) {
        })
      
      #tworzenie wykresu P(I,t)
-     ggplot(sym)+geom_point(aes(x=krok,y=proc_chorych))+
+     ggplot(sym)+geom_line(aes(x=krok,y=proc_chorych))+
        lims(y=c(0,1))+
        labs(y='P(I,t)',x='t',
             title=bquote('<k> = '*.(round(k_sr))
