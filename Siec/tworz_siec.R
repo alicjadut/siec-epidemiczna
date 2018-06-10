@@ -19,9 +19,6 @@ tworz_siec<- function(N, proc_chorych, typ){
   
 }
 
-a<-tworz_siec(1000, 0.1, "ba")
-as.adjacency.matrix(a)
-visIgraph(a)
 
 
 
