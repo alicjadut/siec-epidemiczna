@@ -1,5 +1,6 @@
 library(igraph)
 
+
 tworz_siec<- function(N, proc_chorych, typ){
   if (typ=="ba"){
     siec<- sample_pa(n=N, power=1, m=1,  directed=F)
@@ -17,3 +18,19 @@ tworz_siec<- function(N, proc_chorych, typ){
   return(siec)
   
 }
+
+a<-tworz_siec(1000, 0.1, "ba")
+as.adjacency.matrix(a)
+visIgraph(a)
+
+
+
+
+
+
+
+
+
+
+
+

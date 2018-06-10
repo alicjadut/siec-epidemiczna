@@ -102,11 +102,15 @@ server <- function(input, output) {
        proc_chorych= c(length(V(siec)[czy_chory==1])/vcount(siec)))
      
      #ewolucja sieci
+     withProgress(message="Utworzono", value=0,{
      for(krok in 1:input$l_krokow){
        siec=ewolucja(siec,beta=input$beta,gamma=input$gamma)
        wyniki<-c(krok, length(V(siec)[czy_chory==1])/vcount(siec))
        sym<-rbind(sym, wyniki)
+       
+       incProgress(1/input$l_krokow, detail = paste("Wykonywanie", krok, "/", input$l_krokow))
      }
+       })
      
      #tworzenie wykresu P(I,t)
      ggplot(sym)+geom_point(aes(x=krok,y=proc_chorych))+
