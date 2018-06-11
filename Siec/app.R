@@ -1,3 +1,4 @@
+library(dplyr)
 library(shiny)
 library(ggplot2)
 library(igraph)
@@ -58,6 +59,7 @@ server <- function(input, output) {
    output$diagram_fazowy <- renderPlot({
      
      p_sick<-function(x){max(0,1-1/x)}
+     
      fancy_scientific <- function(l) {
        l=paste('10^',l,sep='')
        parse(text=l)
@@ -84,11 +86,11 @@ server <- function(input, output) {
                              labels=c('Barabasi-Albert','Pełny graf','Kwadratowa'))}
      else if(!input$czy_N & !input$czy_rodzaj)
       {g=g+geom_point(alpha=0.5,aes(x=lambda,y=procent_chorych))}
-    
      g=g+stat_function(fun=Vectorize(p_sick))+
        lims(y=c(0,1))
      g=g+labs(main='Diagram fazowy',
-              x=expression(lambda/lambda["kr"]),
+              #x=expression(lambda/lambda["kr"]),
+              x=expression(lambda),
               y=expression("P(I,"*infinity*")"))
      if(input$add_my){
        g=g+geom_point(aes(x=(input$beta/input$gamma),y=mean(read.csv('my_p.csv')$x)),colour='red',size=4)
