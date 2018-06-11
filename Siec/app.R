@@ -1,4 +1,4 @@
-
+library(dplyr)
 library(shiny)
 library(ggplot2)
 library(igraph)
@@ -57,6 +57,7 @@ server <- function(input, output) {
    output$diagram_fazowy <- renderPlot({
      
      p_sick<-function(x){max(0,1-1/x)}
+     
      fancy_scientific <- function(l) {
        l=paste('10^',l,sep='')
        parse(text=l)
@@ -65,25 +66,26 @@ server <- function(input, output) {
      g=ggplot(read.csv('diag_faz.csv'))
      
      if(input$czy_N & input$czy_rodzaj)
-     {g=g+geom_point(aes(x=wsp,y=procent_chorych,colour=log10(N),shape=siec_typ))+
+     {g=g+geom_point(aes(x=lambda,y=procent_chorych,colour=log10(N),shape=siec_typ))+
          labs(colour="Liczba węzłów",shape="Typ sieci")+
        scale_color_continuous(limits=c(2,6),breaks=2:6,
                               labels=fancy_scientific(2:6))}
      else if(input$czy_N & !input$czy_rodzaj)
-     {g=g+geom_point(aes(x=wsp,y=procent_chorych,colour=log10(N)))+
+     {g=g+geom_point(aes(x=lambda,y=procent_chorych,colour=log10(N)))+
        labs(colour="Liczba węzłów")+
        scale_color_continuous(limits=c(2,5),breaks=2:5,
                               labels=fancy_scientific(2:5))}
      else if(!input$czy_N & input$czy_rodzaj)
-     {g=g+geom_point(aes(x=wsp,y=procent_chorych,colour=siec_typ))+
+     {g=g+geom_point(aes(x=lambda,y=procent_chorych,colour=siec_typ))+
        labs(colour="Typ sieci")}
      else if(!input$czy_N & !input$czy_rodzaj)
-      {g=g+geom_point(aes(x=wsp,y=procent_chorych))}
+      {g=g+geom_point(aes(x=lambda,y=procent_chorych))}
     
      g=g+stat_function(fun=Vectorize(p_sick))+
        lims(y=c(0,1))
      g=g+labs(main='Diagram fazowy',
-              x=expression(lambda/lambda["kr"]),
+              #x=expression(lambda/lambda["kr"]),
+              x=expression(lambda),
               y=expression("P(I,"*infinity*")"))
      g
    })
