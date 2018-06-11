@@ -1,7 +1,7 @@
-
 library(shiny)
 library(ggplot2)
 library(igraph)
+library(dplyr)
 source('ewolucja.R')
 source('tworz_siec.R')
 
@@ -43,7 +43,8 @@ ui <- fluidPage(
     column(4,
            wellPanel(
              checkboxInput("czy_N", label = "Liczba węzłów", value = TRUE),
-             checkboxInput("czy_rodzaj", label = "Rodzaj sieci", value = TRUE)
+             checkboxInput("czy_rodzaj", label = "Rodzaj sieci", value = TRUE),
+             checkboxInput("add_my", label="Dodaj moją symulację",value = FALSE)
            )
            ),
     column(8,
@@ -65,26 +66,33 @@ server <- function(input, output) {
      g=ggplot(read.csv('diag_faz.csv'))
      
      if(input$czy_N & input$czy_rodzaj)
-     {g=g+geom_point(aes(x=wsp,y=procent_chorych,colour=log10(N),shape=siec_typ))+
-         labs(colour="Liczba węzłów",shape="Typ sieci")+
-       scale_color_continuous(limits=c(2,6),breaks=2:6,
-                              labels=fancy_scientific(2:6))}
+     {g=g+geom_point(alpha=0.5,aes(x=lambda,y=procent_chorych,size=log10(N),colour=siec_typ))+
+         labs(size="Liczba węzłów",colour="Typ sieci")+
+        scale_size(breaks=2:4,labels=fancy_scientific(2:4))+
+       scale_colour_discrete(breaks=c('ba','fg','sq'),
+                             labels=c('Barabasi-Albert','Pełny graf','Kwadratowa'))
+       }
      else if(input$czy_N & !input$czy_rodzaj)
-     {g=g+geom_point(aes(x=wsp,y=procent_chorych,colour=log10(N)))+
-       labs(colour="Liczba węzłów")+
-       scale_color_continuous(limits=c(2,5),breaks=2:5,
-                              labels=fancy_scientific(2:5))}
+     {g=g+geom_point(alpha=0.5,aes(x=lambda,y=procent_chorych,size=log10(N)))+
+       labs(size="Liczba węzłów")+
+       scale_size(breaks=2:4,labels=fancy_scientific(2:4))
+     }
      else if(!input$czy_N & input$czy_rodzaj)
-     {g=g+geom_point(aes(x=wsp,y=procent_chorych,colour=siec_typ))+
-       labs(colour="Typ sieci")}
+     {g=g+geom_point(alpha=0.5,aes(x=lambda,y=procent_chorych,colour=siec_typ))+
+       labs(colour="Typ sieci")+
+       scale_colour_discrete(breaks=c('ba','fg','sq'),
+                             labels=c('Barabasi-Albert','Pełny graf','Kwadratowa'))}
      else if(!input$czy_N & !input$czy_rodzaj)
-      {g=g+geom_point(aes(x=wsp,y=procent_chorych))}
+      {g=g+geom_point(alpha=0.5,aes(x=lambda,y=procent_chorych))}
     
      g=g+stat_function(fun=Vectorize(p_sick))+
        lims(y=c(0,1))
      g=g+labs(main='Diagram fazowy',
               x=expression(lambda/lambda["kr"]),
               y=expression("P(I,"*infinity*")"))
+     if(input$add_my){
+       g=g+geom_point(aes(x=(input$beta/input$gamma),y=mean(read.csv('my_p.csv')$x)),colour='red',size=4)
+     }
      g
    })
    
@@ -112,6 +120,7 @@ server <- function(input, output) {
        incProgress(1/input$l_krokow, detail = paste("Wykonywanie", krok, "/", input$l_krokow))
      }
        })
+     write.csv(tail(sym,10)$proc_chorych,'my_p.csv',row.names=FALSE)
      
      #tworzenie wykresu P(I,t)
      ggplot(sym)+geom_line(aes(x=krok,y=proc_chorych))+
@@ -121,7 +130,7 @@ server <- function(input, output) {
                          *'     '*lambda[KR]*' = <k>'/'<'*k^2*'>'*' = '*.(round(lambda_kr,2))
                          *'     '*lambda*' = '*beta/gamma*' = '*.(round(lambda,2))
                          ))+
-       geom_hline(yintercept = 1-lambda_kr/lambda,lty=2,colour='gray40')+
+       geom_hline(yintercept = 1-1/lambda,lty=2,colour='gray40')+
        annotate('text',
                 label='1-lambda/lambda[KR]',
                 x=input$l_krokow*0.9,
