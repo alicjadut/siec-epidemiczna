@@ -46,7 +46,9 @@ ui <- fluidPage(
              checkboxInput("czy_N", label = "Liczba węzłów", value = TRUE),
              checkboxInput("czy_rodzaj", label = "Rodzaj sieci", value = TRUE),
              checkboxInput("add_my", label="Dodaj moją symulację",value = FALSE)
-           )
+           ),
+           wellPanel("Aplikacja wykonana przez  Alicję Dutkiewicz i Kamila Matuszelańskiego w ramach przedmiotu \"Wprowadzenie do fizyki złożoności\" prowadzonego przez dra. hab. Ryszarda Kutnera w sem. letnim roku akademickiego 2017/2018. 
+                     \n Link do kodu na Githubie: https://github.com/alicjadut/siec-epidemiczna")
            ),
     column(8,
            plotOutput("diagram_fazowy")
@@ -65,7 +67,11 @@ server <- function(input, output) {
        parse(text=l)
      }
      
-     g=ggplot(read.csv('diag_faz.csv'))
+     g=ggplot(read.csv('diag_faz.csv'))+theme(
+       text = element_text(size = 18),
+       axis.title = element_text(size=25)
+      
+     )
      
      if(input$czy_N & input$czy_rodzaj)
      {g=g+geom_point(alpha=0.5,aes(x=lambda,y=procent_chorych,size=log10(N),colour=siec_typ))+
@@ -91,7 +97,7 @@ server <- function(input, output) {
      g=g+labs(main='Diagram fazowy',
               #x=expression(lambda/lambda["kr"]),
               x=expression(lambda),
-              y=expression("P(I,"*infinity*")"))
+              y=expression("P(I,"*infinity*"  )"))
      if(input$add_my){
        g=g+geom_point(aes(x=(input$beta/input$gamma),y=mean(read.csv('my_p.csv')$x)),colour='red',size=4)
      }
@@ -136,8 +142,10 @@ server <- function(input, output) {
        annotate('text',
                 label='1-lambda/lambda[KR]',
                 x=input$l_krokow*0.9,
-                y=0.98-lambda_kr/lambda,
-                parse=TRUE)
+                y=0.98-1/lambda,
+                parse=TRUE)+theme(
+                  text = element_text(size = 18)
+                )
    })
    
    output$symulacja <- renderPlot({
