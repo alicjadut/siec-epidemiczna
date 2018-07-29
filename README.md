@@ -1,4 +1,4 @@
-"# siec-epidemiczna" 
+# siec-epidemiczna
 
 Check out our app here:
 
